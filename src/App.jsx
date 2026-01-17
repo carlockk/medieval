@@ -1,24 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-
-const menuItems = [
-  { id: "btn1", label: "Boton 1", detail: "Accion 1" },
-  { id: "btn2", label: "Boton 2", detail: "Accion 2" },
-  { id: "btn3", label: "Boton 3", detail: "Accion 3" },
-  { id: "btn4", label: "Boton 4", detail: "Accion 4" },
-  { id: "btn5", label: "Boton 5", detail: "Accion 5" },
-  { id: "btn6", label: "Boton 6", detail: "Accion 6" },
-];
+import DailyProphetPanel from "./components/DailyProphetPanel";
+import GalleryPanel from "./components/GalleryPanel";
+import PanelShell from "./components/PanelShell";
+import galleryFrames from "./data/galleryFrames";
+import menuConfig from "./data/menuConfig";
 
 export default function App() {
   const shadowCanvasRef = useRef(null);
   const fireCanvasRef = useRef(null);
+  const panelContentRef = useRef(null);
   const isLitRef = useRef(false);
   const mouseRef = useRef({ x: -100, y: -100 });
   const particlesRef = useRef([]);
   const [showHint, setShowHint] = useState(true);
   const [menuLayout, setMenuLayout] = useState("vertical");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeItem, setActiveItem] = useState(null);
+  const [activePanel, setActivePanel] = useState(null);
+  const [isLit, setIsLit] = useState(false);
 
   useEffect(() => {
     const shadowCanvas = shadowCanvasRef.current;
@@ -44,11 +42,20 @@ export default function App() {
 
     const handleMouseMove = (event) => {
       mouseRef.current = { x: event.clientX, y: event.clientY };
+      document.documentElement.style.setProperty(
+        "--torch-x",
+        `${event.clientX}px`
+      );
+      document.documentElement.style.setProperty(
+        "--torch-y",
+        `${event.clientY}px`
+      );
     };
 
     const handleContextMenu = (event) => {
       event.preventDefault();
       isLitRef.current = !isLitRef.current;
+      setIsLit(isLitRef.current);
       setShowHint(false);
     };
 
@@ -176,13 +183,13 @@ export default function App() {
   }, []);
 
   const handleMenuClick = (id) => {
-    setActiveItem(id === "btn1" ? id : null);
+    const item = menuConfig.find((menuItem) => menuItem.id === id);
+    setActivePanel(item?.panel ?? null);
   };
 
   const isHorizontal = menuLayout === "horizontal";
-  const activeItemData = menuItems.find((item) => item.id === activeItem);
-  const isDailyProphet = activeItem === "btn1";
-
+  const isDailyProphet = activePanel === "daily";
+  const isGallery = activePanel === "gallery";
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-[#222]">
       <div
@@ -198,181 +205,23 @@ export default function App() {
         }}
       />
 
-      <section
-        className={`fixed z-30 text-[#22150b] transition duration-300 ease-out ${
-          activeItem
-            ? "translate-x-0 opacity-100 pointer-events-auto"
-            : "translate-x-full opacity-0 pointer-events-none"
-        }`}
-        style={{
-          top: isHorizontal ? "40px" : 0,
-          bottom: 0,
-          left: 0,
-          right: isHorizontal ? 0 : "var(--menu-width)",
-          width: isHorizontal ? "100%" : "calc(100% - var(--menu-width))",
-        }}
+      <PanelShell
+        active={Boolean(activePanel)}
+        isGallery={isGallery}
+        isHorizontal={isHorizontal}
+        onClose={() => setActivePanel(null)}
+        variant={activePanel ?? "default"}
+        contentRef={panelContentRef}
       >
-        <div
-          className={`relative h-full w-full overflow-y-auto border-l border-[rgba(120,80,40,0.45)] px-6 py-8 sm:px-10 sm:py-10 ${
-            isDailyProphet
-              ? "bg-[#e9d7b8]"
-              : "bg-[#ead9ba] shadow-[inset_0_0_40px_rgba(90,50,20,0.35)]"
-          }`}
-          style={{
-            backgroundImage: isDailyProphet
-              ? "linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px), radial-gradient(circle at top left, rgba(255,255,255,0.35), transparent 60%)"
-              : "radial-gradient(circle at top left, rgba(255,255,255,0.5), transparent 60%), radial-gradient(circle at bottom right, rgba(120,80,40,0.25), transparent 55%)",
-            backgroundSize: isDailyProphet ? "22px 22px, cover" : "cover",
-            fontFamily: "MedievalSharp, Garamond, Georgia, serif",
-          }}
-        >
-          <button
-            type="button"
-            className="absolute right-5 top-5 text-[32px] text-[#2a160c] transition hover:-translate-y-[1px] hover:text-[#4a2a14]"
-            onClick={() => setActiveItem(null)}
-            aria-label="Cerrar contenido"
-          >
-            ×
-          </button>
-
-          {isDailyProphet && (
-            <>
-              <div className="border-b-2 border-[#1f140c] pb-3 text-center">
-                <p className="text-[11px] uppercase tracking-[3px] text-[#2a160c]">
-                  The Wizard World&apos;s Beguiling Broadsheet of Choice
-                </p>
-                <h2 className="text-[40px] font-bold uppercase tracking-[4px] text-[#1a0f09]">
-                  Daily Prophet
-                </h2>
-                <div className="mt-1 flex flex-wrap justify-center gap-4 text-[11px] uppercase tracking-[2px] text-[#2a160c]">
-                  <span>Edicion especial</span>
-                  <span>Noticias del reino</span>
-                  <span>Precio 1 galeon</span>
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-4 border-b border-[#1f140c] pb-4 text-[11px] uppercase tracking-[2px] text-[#1f140c] sm:grid-cols-3">
-                <div className="border border-[#1f140c] px-3 py-2 text-center">
-                  National Weather
-                </div>
-                <div className="border border-[#1f140c] px-3 py-2 text-center">
-                  Zodiac Aspects
-                </div>
-                <div className="border border-[#1f140c] px-3 py-2 text-center">
-                  Ministry Notices
-                </div>
-              </div>
-
-              <div className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_2fr_1.2fr]">
-                <div className="space-y-4 text-[12px] uppercase tracking-[1px] text-[#1f140c]">
-                  <div className="border border-[#1f140c] px-3 py-2 text-center font-bold">
-                    Exclusivo
-                  </div>
-                  <p className="text-[12px] leading-relaxed normal-case">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                    vitae nisi sed diam luctus congue. Etiam consequat libero ut
-                    varius auctor.
-                  </p>
-                  <p className="text-[12px] leading-relaxed normal-case">
-                    Pellentesque habitant morbi tristique senectus et netus et
-                    malesuada fames ac turpis egestas.
-                  </p>
-                  <div className="border border-[#1f140c] px-3 py-2 text-center font-bold">
-                    Alertas del Reino
-                  </div>
-                  <p className="text-[12px] leading-relaxed normal-case">
-                    Nulla facilisi. Duis nec felis sed odio cursus lacinia.
-                  </p>
-                </div>
-
-                <div className="space-y-4 text-[#1a0f09]">
-                  <h3 className="border-b border-[#1f140c] pb-2 text-[30px] font-extrabold uppercase tracking-[2px]">
-                    The Boy Who Lies?
-                  </h3>
-                  <div className="rounded-[6px] border-2 border-[#1f140c] bg-[rgba(255,255,255,0.55)] p-3">
-                    <img
-                      src="/escudo.png"
-                      alt="Retrato del heroe"
-                      className="h-[190px] w-full object-contain"
-                    />
-                  </div>
-                  <div className="text-[13px] leading-relaxed [column-count:2] [column-gap:18px]">
-                    <p>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                      vitae nisi sed diam luctus congue. Etiam consequat, libero ut
-                      varius auctor, elit tellus sodales est, non hendrerit purus
-                      neque vitae erat.
-                    </p>
-                    <p>
-                      Nullam consequat, nisl in aliquet cursus, neque sem fermentum
-                      lectus, in interdum turpis ipsum vitae sapien. Integer quis
-                      nulla sed metus placerat tempus. Praesent sagittis, lorem a
-                      eleifend facilisis, ligula nisl fermentum lacus, in blandit
-                      nisl tortor vel nibh.
-                    </p>
-                    <p>
-                      Vivamus semper odio at luctus aliquet. Curabitur aliquet, leo
-                      quis ultrices finibus, est erat pharetra augue, nec gravida
-                      neque elit non arcu.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-4 text-[12px] text-[#1f140c]">
-                  <div className="border border-[#1f140c] px-3 py-2 text-center uppercase tracking-[1px]">
-                    Wizard Prison Blunder
-                  </div>
-                  <p className="leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                    vitae nisi sed diam luctus congue.
-                  </p>
-                  <div className="border border-[#1f140c] px-3 py-2 text-center uppercase tracking-[1px]">
-                    Ghosts Demand Housing
-                  </div>
-                  <p className="leading-relaxed">
-                    Pellentesque habitant morbi tristique senectus et netus.
-                  </p>
-                  <div className="border border-[#1f140c] px-3 py-2 text-center uppercase tracking-[1px]">
-                    Witch Wonder
-                  </div>
-                  <p className="leading-relaxed">
-                    Praesent sagittis, lorem a eleifend facilisis, ligula nisl
-                    fermentum lacus.
-                  </p>
-                  <div className="rounded-[6px] border border-[#1f140c] bg-[rgba(255,255,255,0.6)] p-3 text-center uppercase tracking-[1px]">
-                    <img
-                      src="/sword.svg"
-                      alt="Espada medieval"
-                      className="mx-auto mb-2 h-[120px] w-auto object-contain"
-                    />
-                    Reliquia de la guardia
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 border-t-2 border-[#1f140c] pt-4 text-[12px] uppercase tracking-[2px] text-[#1f140c]">
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="border border-[#1f140c] px-3 py-2 text-center">
-                    anuncios
-                  </div>
-                  <div className="border border-[#1f140c] px-3 py-2 text-center">
-                    clasificados
-                  </div>
-                  <div className="border border-[#1f140c] px-3 py-2 text-center">
-                    cartas
-                  </div>
-                  <div className="border border-[#1f140c] px-3 py-2 text-center">
-                    eventos
-                  </div>
-                </div>
-                <p className="mt-3 text-center text-[10px] uppercase tracking-[2px] text-[#2a160c]">
-                  Reporte especial - pagina 4/8
-                </p>
-              </div>
-            </>
-          )}
-        </div>
-      </section>
+        {isDailyProphet && <DailyProphetPanel />}
+        {isGallery && (
+          <GalleryPanel
+            frames={galleryFrames}
+            isLit={isLit}
+            scrollRef={panelContentRef}
+          />
+        )}
+      </PanelShell>
 
       <canvas ref={shadowCanvasRef} className="absolute inset-0 z-10 block" />
       <canvas
@@ -434,7 +283,7 @@ export default function App() {
                 : "flex flex-col"
             }
           >
-            {menuItems.map((item, index) => (
+            {menuConfig.map((item, index) => (
               <div
                 key={item.id}
                 className={isHorizontal ? "flex items-center" : "flex flex-col"}
