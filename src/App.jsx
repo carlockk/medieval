@@ -315,10 +315,10 @@ export default function App() {
               Consejo del guardia
             </div>
             <div className="text-[#f4e7c6]">
-              Click derecho: prende fuego fijo · Click en fuego: apaga
+              Click derecho: prende antorcha fija · Click izquierdo apaga
             </div>
             <div className="text-[#f4e7c6]">
-              Doble click: antorcha que sigue al mouse
+              Doble click izquierdo: antorcha que sigue al mouse
             </div>
           </div>
         </div>
