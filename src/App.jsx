@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import DailyProphetPanel from "./components/DailyProphetPanel";
 import GalleryPanel from "./components/GalleryPanel";
 import PanelShell from "./components/PanelShell";
+import MapPanel from "./components/MapPanel";
 import galleryFrames from "./data/galleryFrames";
 import menuConfig from "./data/menuConfig";
 
@@ -247,6 +248,7 @@ export default function App() {
   const isHorizontal = menuLayout === "horizontal";
   const isDailyProphet = activePanel === "daily";
   const isGallery = activePanel === "gallery";
+  const isMap = activePanel === "map";
 
   const handleFireToggle = (id) => {
     const nextFires = staticFiresRef.current.filter((fire) => fire.id !== id);
@@ -300,6 +302,7 @@ export default function App() {
             scrollRef={panelContentRef}
           />
         )}
+        {isMap && <MapPanel />}
       </PanelShell>
 
       <canvas ref={shadowCanvasRef} className="absolute inset-0 z-10 block" />

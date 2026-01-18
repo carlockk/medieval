@@ -94,3 +94,79 @@ body {
 .panel-scroll::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, rgba(175, 120, 70, 0.95), rgba(110, 65, 30, 0.95));
 }
+
+.map-point {
+  cursor: pointer;
+}
+
+.map-point-core {
+  fill: rgba(120, 70, 30, 0.95);
+  stroke: rgba(255, 230, 170, 0.9);
+  stroke-width: 2;
+}
+
+.map-point-ring {
+  fill: rgba(255, 200, 120, 0.16);
+}
+
+.map-point-wave {
+  fill: none;
+  stroke: rgba(255, 210, 140, 0.5);
+  stroke-width: 2;
+  animation: mapWave 2.2s ease-out infinite;
+}
+
+.map-tooltip {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.map-point:hover .map-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.map-tooltip rect {
+  fill: rgba(20, 10, 5, 0.75);
+  stroke: rgba(255, 230, 170, 0.6);
+  stroke-width: 1;
+}
+
+.map-tooltip-title {
+  fill: #f4e7c6;
+  font-size: 16px;
+  letter-spacing: 1px;
+  font-family: "MedievalSharp", Garamond, Georgia, serif;
+}
+
+.map-tooltip-detail {
+  fill: rgba(244, 231, 198, 0.8);
+  font-size: 12px;
+  letter-spacing: 0.8px;
+  font-family: "MedievalSharp", Garamond, Georgia, serif;
+}
+
+.map-point-label {
+  fill: rgba(40, 20, 8, 0.9);
+  font-size: 18px;
+  letter-spacing: 1px;
+  font-family: "MedievalSharp", Garamond, Georgia, serif;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+@keyframes mapWave {
+  0% {
+    opacity: 0.65;
+    transform: scale(0.9);
+  }
+  70% {
+    opacity: 0.15;
+    transform: scale(1.35);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
