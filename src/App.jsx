@@ -240,6 +240,18 @@ export default function App() {
     panelOpenRef.current = Boolean(activePanel);
   }, [activePanel]);
 
+  useEffect(() => {
+    if (activePanel === "gallery") {
+      isMouseTorchRef.current = true;
+      setIsLit(true);
+      return;
+    }
+    if (!activePanel) {
+      isMouseTorchRef.current = false;
+      setIsLit(staticFiresRef.current.length > 0);
+    }
+  }, [activePanel]);
+
   const handleMenuClick = (id) => {
     const item = menuConfig.find((menuItem) => menuItem.id === id);
     setActivePanel(item?.panel ?? null);
