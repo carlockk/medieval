@@ -18,6 +18,12 @@
   }
 }
 
+@media (max-width: 639px) {
+  #bg-image {
+    right: 0 !important;
+  }
+}
+
 body {
   margin: 0;
   width: 100vw;
