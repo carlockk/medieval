@@ -9,7 +9,8 @@ export default function App() {
   const shadowCanvasRef = useRef(null);
   const fireCanvasRef = useRef(null);
   const panelContentRef = useRef(null);
-  const isLitRef = useRef(false);
+  const isMouseTorchRef = useRef(false);
+  const staticFiresRef = useRef([]);
   const mouseRef = useRef({ x: -100, y: -100 });
   const particlesRef = useRef([]);
   const [showHint, setShowHint] = useState(true);
@@ -17,6 +18,7 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activePanel, setActivePanel] = useState(null);
   const [isLit, setIsLit] = useState(false);
+  const [staticFires, setStaticFires] = useState([]);
 
   useEffect(() => {
     const shadowCanvas = shadowCanvasRef.current;
@@ -57,8 +59,24 @@ export default function App() {
 
     const handleContextMenu = (event) => {
       event.preventDefault();
-      isLitRef.current = !isLitRef.current;
-      setIsLit(isLitRef.current);
+      const newFire = {
+        id: `fire-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        x: event.clientX,
+        y: event.clientY,
+      };
+      const nextFires = [...staticFiresRef.current, newFire];
+      staticFiresRef.current = nextFires;
+      setStaticFires(nextFires);
+      isMouseTorchRef.current = false;
+      setIsLit(true);
+      setShowHint(false);
+    };
+
+    const handleDoubleClick = () => {
+      isMouseTorchRef.current = !isMouseTorchRef.current;
+      setIsLit(
+        isMouseTorchRef.current || staticFiresRef.current.length > 0
+      );
       setShowHint(false);
     };
 
@@ -112,36 +130,45 @@ export default function App() {
       shadowCtx.fillStyle = `rgba(0,0,0,${baseDarkness})`;
       shadowCtx.fillRect(0, 0, width, height);
 
-      if (isLitRef.current) {
+      const activeLights = [];
+      if (isMouseTorchRef.current) {
+        activeLights.push({ x: mouseRef.current.x, y: mouseRef.current.y });
+      }
+      staticFiresRef.current.forEach((fire) => {
+        activeLights.push({ x: fire.x, y: fire.y });
+      });
+
+      if (activeLights.length > 0) {
         shadowCtx.globalCompositeOperation = "destination-out";
 
         const time = performance.now() * 0.004;
-        const flicker = 1 + Math.sin(time * 3.2) * 0.03 + Math.sin(time * 7.1) * 0.02;
-        const radius = width * 0.15 * flicker;
-        const offsetX = Math.sin(time * 2.3) * 6;
-        const offsetY = Math.cos(time * 2.8) * 4;
-        const gradient = shadowCtx.createRadialGradient(
-          mouseRef.current.x + offsetX,
-          mouseRef.current.y + offsetY,
-          0,
-          mouseRef.current.x + offsetX,
-          mouseRef.current.y + offsetY,
-          radius
-        );
+        activeLights.forEach((light, index) => {
+          const flicker =
+            1 +
+            Math.sin(time * (3.2 + index)) * 0.03 +
+            Math.sin(time * (7.1 + index * 0.7)) * 0.02;
+          const radius = width * 0.15 * flicker;
+          const offsetX = Math.sin(time * (2.3 + index)) * 6;
+          const offsetY = Math.cos(time * (2.8 + index)) * 4;
+          const gx = light.x + offsetX;
+          const gy = light.y + offsetY;
+          const gradient = shadowCtx.createRadialGradient(
+            gx,
+            gy,
+            0,
+            gx,
+            gy,
+            radius
+          );
 
-        gradient.addColorStop(0, "rgba(0,0,0,0.90)");
-        gradient.addColorStop(1, "rgba(0,0,0,0)");
+          gradient.addColorStop(0, "rgba(0,0,0,0.90)");
+          gradient.addColorStop(1, "rgba(0,0,0,0)");
 
-        shadowCtx.fillStyle = gradient;
-        shadowCtx.beginPath();
-        shadowCtx.arc(
-          mouseRef.current.x + offsetX,
-          mouseRef.current.y + offsetY,
-          radius,
-          0,
-          Math.PI * 2
-        );
-        shadowCtx.fill();
+          shadowCtx.fillStyle = gradient;
+          shadowCtx.beginPath();
+          shadowCtx.arc(gx, gy, radius, 0, Math.PI * 2);
+          shadowCtx.fill();
+        });
 
         shadowCtx.globalCompositeOperation = "source-over";
       }
@@ -153,10 +180,19 @@ export default function App() {
       fireCtx.clearRect(0, 0, width, height);
       fireCtx.globalCompositeOperation = "lighter";
 
-      if (isLitRef.current && Math.random() > 0.3) {
-        particlesRef.current.push(
-          new Flame(mouseRef.current.x, mouseRef.current.y)
-        );
+      const emitPoints = [];
+      if (isMouseTorchRef.current) {
+        emitPoints.push({ x: mouseRef.current.x, y: mouseRef.current.y });
+      }
+      staticFiresRef.current.forEach((fire) => {
+        emitPoints.push({ x: fire.x, y: fire.y });
+      });
+      if (emitPoints.length > 0) {
+        emitPoints.forEach((point) => {
+          if (Math.random() > 0.55) {
+            particlesRef.current.push(new Flame(point.x, point.y));
+          }
+        });
       }
 
       for (let i = particlesRef.current.length - 1; i >= 0; i -= 1) {
@@ -175,15 +211,24 @@ export default function App() {
     window.addEventListener("resize", resize);
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("contextmenu", handleContextMenu);
+    window.addEventListener("dblclick", handleDoubleClick);
     animate();
 
     return () => {
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("contextmenu", handleContextMenu);
+      window.removeEventListener("dblclick", handleDoubleClick);
       window.cancelAnimationFrame(rafId);
     };
   }, []);
+
+  useEffect(() => {
+    if (staticFiresRef.current.length === 0) return;
+    staticFiresRef.current = [];
+    setStaticFires([]);
+    setIsLit(isMouseTorchRef.current);
+  }, [menuLayout]);
 
   const handleMenuClick = (id) => {
     const item = menuConfig.find((menuItem) => menuItem.id === id);
@@ -193,6 +238,13 @@ export default function App() {
   const isHorizontal = menuLayout === "horizontal";
   const isDailyProphet = activePanel === "daily";
   const isGallery = activePanel === "gallery";
+
+  const handleFireToggle = (id) => {
+    const nextFires = staticFiresRef.current.filter((fire) => fire.id !== id);
+    staticFiresRef.current = nextFires;
+    setStaticFires(nextFires);
+    setIsLit(isMouseTorchRef.current || nextFires.length > 0);
+  };
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-[#222]">
       <div
@@ -207,6 +259,19 @@ export default function App() {
           backgroundRepeat: "no-repeat",
         }}
       />
+
+      <div className="absolute inset-0 z-20 pointer-events-none">
+        {staticFires.map((fire) => (
+          <button
+            key={fire.id}
+            type="button"
+            className="pointer-events-auto absolute h-[18px] w-[18px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(255,210,140,0.75)] bg-[rgba(255,170,80,0.18)] shadow-[0_0_10px_rgba(255,160,70,0.6)]"
+            style={{ left: `${fire.x}px`, top: `${fire.y}px` }}
+            onClick={() => handleFireToggle(fire.id)}
+            aria-label="Apagar fuego"
+          />
+        ))}
+      </div>
 
       <PanelShell
         active={Boolean(activePanel)}
@@ -234,7 +299,17 @@ export default function App() {
 
       {showHint && (
         <div className="pointer-events-none absolute bottom-5 z-30 w-full text-center font-medieval text-white drop-shadow-[2px_2px_4px_black]">
-          Haz CLICK DERECHO para encender la antorcha
+          <div className="mx-auto inline-flex flex-col gap-1 rounded-[10px] border border-[rgba(255,240,200,0.45)] bg-[rgba(20,10,5,0.55)] px-4 py-2 text-[12px] tracking-[0.8px] sm:text-[13px]">
+            <div className="uppercase tracking-[1.5px] text-[#f4e7c6]">
+              Consejo del guardia
+            </div>
+            <div className="text-[#f4e7c6]">
+              Click derecho: prende fuego fijo · Click en fuego: apaga
+            </div>
+            <div className="text-[#f4e7c6]">
+              Doble click: antorcha que sigue al mouse
+            </div>
+          </div>
         </div>
       )}
 
