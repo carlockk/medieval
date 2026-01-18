@@ -13,6 +13,7 @@ export default function App() {
   const staticFiresRef = useRef([]);
   const mouseRef = useRef({ x: -100, y: -100 });
   const particlesRef = useRef([]);
+  const panelOpenRef = useRef(false);
   const [showHint, setShowHint] = useState(true);
   const [menuLayout, setMenuLayout] = useState("vertical");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -134,9 +135,11 @@ export default function App() {
       if (isMouseTorchRef.current) {
         activeLights.push({ x: mouseRef.current.x, y: mouseRef.current.y });
       }
-      staticFiresRef.current.forEach((fire) => {
-        activeLights.push({ x: fire.x, y: fire.y });
-      });
+      if (!panelOpenRef.current) {
+        staticFiresRef.current.forEach((fire) => {
+          activeLights.push({ x: fire.x, y: fire.y });
+        });
+      }
 
       if (activeLights.length > 0) {
         shadowCtx.globalCompositeOperation = "destination-out";
@@ -184,9 +187,11 @@ export default function App() {
       if (isMouseTorchRef.current) {
         emitPoints.push({ x: mouseRef.current.x, y: mouseRef.current.y });
       }
-      staticFiresRef.current.forEach((fire) => {
-        emitPoints.push({ x: fire.x, y: fire.y });
-      });
+      if (!panelOpenRef.current) {
+        staticFiresRef.current.forEach((fire) => {
+          emitPoints.push({ x: fire.x, y: fire.y });
+        });
+      }
       if (emitPoints.length > 0) {
         emitPoints.forEach((point) => {
           if (Math.random() > 0.55) {
@@ -230,6 +235,10 @@ export default function App() {
     setIsLit(isMouseTorchRef.current);
   }, [menuLayout]);
 
+  useEffect(() => {
+    panelOpenRef.current = Boolean(activePanel);
+  }, [activePanel]);
+
   const handleMenuClick = (id) => {
     const item = menuConfig.find((menuItem) => menuItem.id === id);
     setActivePanel(item?.panel ?? null);
@@ -260,18 +269,20 @@ export default function App() {
         }}
       />
 
-      <div className="absolute inset-0 z-20 pointer-events-none">
-        {staticFires.map((fire) => (
-          <button
-            key={fire.id}
-            type="button"
-            className="pointer-events-auto absolute h-[18px] w-[18px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(255,210,140,0.75)] bg-[rgba(255,170,80,0.18)] shadow-[0_0_10px_rgba(255,160,70,0.6)]"
-            style={{ left: `${fire.x}px`, top: `${fire.y}px` }}
-            onClick={() => handleFireToggle(fire.id)}
-            aria-label="Apagar fuego"
-          />
-        ))}
-      </div>
+      {!activePanel && (
+        <div className="absolute inset-0 z-20 pointer-events-none">
+          {staticFires.map((fire) => (
+            <button
+              key={fire.id}
+              type="button"
+              className="pointer-events-auto absolute h-[18px] w-[18px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(255,210,140,0.75)] bg-[rgba(255,170,80,0.18)] shadow-[0_0_10px_rgba(255,160,70,0.6)]"
+              style={{ left: `${fire.x}px`, top: `${fire.y}px` }}
+              onClick={() => handleFireToggle(fire.id)}
+              aria-label="Apagar fuego"
+            />
+          ))}
+        </div>
+      )}
 
       <PanelShell
         active={Boolean(activePanel)}
