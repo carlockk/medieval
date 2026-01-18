@@ -5,7 +5,8 @@
 @tailwind utilities;
 
 :root {
-  --menu-width: 380px;
+  --menu-width: 340px;
+  --panel-offset: var(--menu-width);
   --torch-x: -200px;
   --torch-y: -200px;
   --gallery-torch-x: -200px;
@@ -14,7 +15,8 @@
 
 @media (max-width: 600px) {
   :root {
-    --menu-width: 300px;
+    --menu-width: 260px;
+    --panel-offset: 0px;
   }
 }
 

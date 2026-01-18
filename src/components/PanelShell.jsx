@@ -27,8 +27,8 @@ export default function PanelShell({
         top: isHorizontal ? "40px" : 0,
         bottom: 0,
         left: 0,
-        right: isHorizontal ? 0 : "var(--menu-width)",
-        width: isHorizontal ? "100%" : "calc(100% - var(--menu-width))",
+        right: isHorizontal ? 0 : "var(--panel-offset)",
+        width: isHorizontal ? "100%" : "calc(100% - var(--panel-offset))",
       }}
     >
       <div

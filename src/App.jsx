@@ -38,6 +38,9 @@ export default function App() {
       shadowCanvas.height = height;
       fireCanvas.width = width;
       fireCanvas.height = height;
+      if (width < 640 && menuLayout !== "vertical") {
+        setMenuLayout("vertical");
+      }
     };
 
     const handleMouseMove = (event) => {
@@ -268,9 +271,16 @@ export default function App() {
           {!isHorizontal && (
             <>
               <div className="flex items-center justify-center">
-                <h3 className="mb-4 text-center text-[26px] tracking-[1px] text-[#2a160c] drop-shadow-[0_1px_0_rgba(255,255,255,0.4)]">
-                  Medieval Menu
-                </h3>
+                <div className="mb-4 flex flex-col items-center gap-2">
+                  <img
+                    src="/escudo.png"
+                    alt="Escudo medieval"
+                    className="h-[56px] w-auto object-contain"
+                  />
+                  <h3 className="text-center text-[22px] tracking-[1px] text-[#2a160c] drop-shadow-[0_1px_0_rgba(255,255,255,0.4)]">
+                    Medieval Menu
+                  </h3>
+                </div>
               </div>
               <div className="mb-4 h-[2px] bg-gradient-to-r from-transparent via-[rgba(80,40,10,0.6)] to-transparent" />
             </>
@@ -299,13 +309,13 @@ export default function App() {
                   className={`text-left tracking-[0.8px] text-[#1f140c] transition duration-150 hover:-translate-y-[1px] hover:text-[#2a160c] active:translate-y-[1px] ${
                     isHorizontal
                       ? "px-1 text-[14px]"
-                      : "w-full py-1 pr-4 text-[17px]"
+                      : "w-full py-1 pr-4 text-[15px]"
                   }`}
                   onClick={() => handleMenuClick(item.id)}
                 >
                   {item.label}
                   {!isHorizontal && (
-                    <small className="block text-[10px] opacity-70">
+                    <small className="block text-[9px] opacity-70">
                       {item.detail}
                     </small>
                   )}
@@ -327,12 +337,8 @@ export default function App() {
             </div>
           ) : (
             <div className="mt-auto flex items-center gap-2 pt-4 sm:gap-3 sm:pt-6">
-              <img
-                src="/escudo.png"
-                alt="Escudo medieval"
-                className="h-[64px] w-auto object-contain sm:h-[72px]"
-              />
-              <div className="text-[16px] tracking-[0.6px] text-[#2a160c] sm:text-[18px]">
+              <div className="h-[48px] w-[48px] rounded-full border-2 border-[rgba(80,40,10,0.6)] bg-[rgba(42,22,12,0.2)] shadow-[inset_0_0_10px_rgba(0,0,0,0.35)] sm:h-[56px] sm:w-[56px]" />
+              <div className="text-[14px] tracking-[0.6px] text-[#2a160c] sm:text-[16px]">
                 Usuario
               </div>
             </div>
@@ -351,7 +357,7 @@ export default function App() {
 
       <button
         type="button"
-        className="absolute bottom-3 right-3 z-50 rounded-[6px] border border-[rgba(255,240,200,0.6)] bg-[rgba(42,22,12,0.7)] px-2 py-1 text-[11px] tracking-[0.6px] text-[#f4e7c6] shadow-[0_6px_14px_rgba(0,0,0,0.35)]"
+        className="absolute bottom-3 right-3 z-50 hidden rounded-[6px] border border-[rgba(255,240,200,0.6)] bg-[rgba(42,22,12,0.7)] px-2 py-1 text-[11px] tracking-[0.6px] text-[#f4e7c6] shadow-[0_6px_14px_rgba(0,0,0,0.35)] sm:inline-flex"
         onClick={() =>
           setMenuLayout((prev) =>
             prev === "vertical" ? "horizontal" : "vertical"
