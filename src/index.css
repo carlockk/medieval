@@ -70,3 +70,27 @@ body {
     rgba(0, 0, 0, 0.7) 230px
   );
 }
+
+.panel-scroll {
+  scrollbar-color: rgba(120, 80, 40, 0.7) rgba(30, 20, 10, 0.25);
+  scrollbar-width: thin;
+}
+
+.panel-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+
+.panel-scroll::-webkit-scrollbar-track {
+  background: rgba(30, 20, 10, 0.25);
+  border-left: 1px solid rgba(120, 80, 40, 0.4);
+}
+
+.panel-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(150, 100, 55, 0.85), rgba(90, 55, 25, 0.85));
+  border-radius: 10px;
+  border: 2px solid rgba(30, 20, 10, 0.35);
+}
+
+.panel-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(175, 120, 70, 0.95), rgba(110, 65, 30, 0.95));
+}

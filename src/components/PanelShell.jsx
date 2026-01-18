@@ -33,7 +33,7 @@ export default function PanelShell({
     >
       <div
         ref={contentRef}
-        className={`relative h-full w-full overflow-y-auto border-l border-[rgba(120,80,40,0.45)] px-6 py-8 sm:px-10 sm:py-10 ${
+        className={`panel-scroll relative h-full w-full overflow-y-auto border-l border-[rgba(120,80,40,0.45)] px-6 py-8 sm:border-l sm:px-10 sm:py-10 ${
           isDaily
             ? "bg-[#e9d7b8]"
             : isGalleryVariant

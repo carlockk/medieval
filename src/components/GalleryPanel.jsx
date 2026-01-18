@@ -66,12 +66,15 @@ export default function GalleryPanel({ frames, isLit, scrollRef }) {
               className={`gallery-frame ${frame.size}`}
               style={{ animationDelay: `${index * 140}ms` }}
             >
-              <div className="h-full w-full rounded-[14px] border-2 border-[#c79a61] bg-[#2b1e15] p-2 shadow-[0_14px_24px_rgba(0,0,0,0.5)]">
-                <img
-                  src={frame.src}
-                  alt="Retrato medieval"
-                  className="h-full w-full rounded-[10px] border border-[rgba(180,150,110,0.55)] object-cover shadow-[inset_0_0_22px_rgba(0,0,0,0.6)]"
-                />
+              <div
+                className="h-full w-full bg-center bg-no-repeat shadow-[0_14px_24px_rgba(0,0,0,0.5)]"
+                style={{
+                  backgroundImage: "url('/frame.png')",
+                  backgroundSize: "100% 100%",
+                  padding: "12%",
+                }}
+              >
+                <div className="h-full w-full rounded-[6px] bg-[#0d0a08] shadow-[inset_0_0_22px_rgba(0,0,0,0.7)]" />
               </div>
             </div>
           ))}
