@@ -268,6 +268,12 @@ export default function App() {
     setStaticFires(nextFires);
     setIsLit(isMouseTorchRef.current || nextFires.length > 0);
   };
+
+  const handleAllFiresOff = () => {
+    staticFiresRef.current = [];
+    setStaticFires([]);
+    setIsLit(isMouseTorchRef.current);
+  };
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-[#222]">
       <div
@@ -295,6 +301,15 @@ export default function App() {
               aria-label="Apagar fuego"
             />
           ))}
+          {staticFires.length > 0 && (
+            <button
+              type="button"
+              className="pointer-events-auto absolute bottom-4 left-4 rounded-[8px] border border-[rgba(255,210,140,0.7)] bg-[rgba(30,15,8,0.7)] px-3 py-1 text-[11px] tracking-[0.6px] text-[#f6e7c6] shadow-[0_6px_14px_rgba(0,0,0,0.35)]"
+              onClick={handleAllFiresOff}
+            >
+              Apagar todos
+            </button>
+          )}
         </div>
       )}
 
